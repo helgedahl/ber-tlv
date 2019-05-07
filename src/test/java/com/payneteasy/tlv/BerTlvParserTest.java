@@ -1,7 +1,11 @@
 package com.payneteasy.tlv;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.FileInputStream;
 
 public class BerTlvParserTest {
 
@@ -33,6 +37,31 @@ public class BerTlvParserTest {
         /*   f0 */ + "00 00 63                                            " // ..c
                 ;
         parse(hex);
+    }
+
+    @Test
+    public void testParseFile() throws Exception{
+        FileInputStream fs = new FileInputStream("/home/hde/workspace/ppltest/DCPAR___180927113318");
+        //FileInputStream fs = new FileInputStream("/home/hde/workspace/ppltest/MASPAR__180509095658");
+
+        byte[] fbytes = IOUtils.toByteArray(fs);
+
+        byte[] tlvContents = new byte[fbytes.length-86-16];
+        System.arraycopy(fbytes, 86, tlvContents, 0, tlvContents.length);
+
+        System.out.println(Hex.encodeHex(tlvContents));
+
+        BerTlvParser parser = new BerTlvParser();
+        BerTlv tlv = parser.parseConstructed(tlvContents);
+
+        BerTlvLogger.log("    ", tlv, LOG);
+
+        byte[] tlvBytes = new BerTlvBuilder()
+                .addBerTlv(tlv)
+                .buildArray();
+
+        System.out.println(Hex.encodeHex(tlvBytes));
+
     }
 
     private BerTlvs parse(String hex) {

@@ -1,8 +1,10 @@
 package com.payneteasy.tlv;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,13 +76,18 @@ public class BerTlvBuilderTest {
 
     @Test
     public void testComplex() {
+        TAG_E0.setIndefinite(true);
+        TAG_71.setIndefinite(true);
         byte[] bytes = template(TAG_E0)
                 .add(
                         template(TAG_71)
-                                .addHex(TAG_86, "F9128478E28F860D8424000008514C01")
-                                .addHex(TAG_86, "F9128478E28F860D8424000008514C02")
+                                .addHex(TAG_86, "FFFF")
+                                .addHex(TAG_86, "FFFF")
+                                //.addHex(TAG_86, "F9128478E28F860D8424000008514C01")
+                                //.addHex(TAG_86, "F9128478E28F860D8424000008514C02")
                 )
-                .addHex(TAG_86, "F9128478E28F860D8424000008514C03")
+                //.addHex(TAG_86, "F9128478E28F860D8424000008514C03")
+                .addHex(TAG_86, "FFFF")
                 .buildArray();
         System.out.println(HexUtil.toFormattedHexString(bytes));
 
@@ -88,6 +95,30 @@ public class BerTlvBuilderTest {
         List<BerTlv> list = tlv.findAll(TAG_86);
         System.out.println("list = " + list);
 
+    }
+
+    @Test
+    public void testComplexIndefinite(){
+            ArrayList lst = new ArrayList();
+            lst.add(new BerTlv(new BerTag(0x9f, 0x22), "The Text".getBytes()));
+            lst.add(new BerTlv(new BerTag(0x9f, 0x22), "The Text2".getBytes()));
+
+            BerTag tag = new BerTag(0xBF, 0x20);
+            tag.setIndefinite(true);
+
+            BerTlvs tlvs = new BerTlvBuilder()
+                    .addBerTlv(new BerTlv(tag, lst))
+                    .buildTlvs();
+
+            System.out.println(tlvs.toString());
+
+            BerTlv berTlv = new BerTlv(tag, lst);
+
+            byte[] tlvBytes = new BerTlvBuilder()
+                    .addBerTlv(berTlv)
+                    .buildArray();
+
+            System.out.println(Hex.encodeHex(tlvBytes));
     }
 
     @Test

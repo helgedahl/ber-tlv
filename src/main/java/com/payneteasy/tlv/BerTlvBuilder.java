@@ -97,7 +97,7 @@ public class BerTlvBuilder {
         if (theTemplate != null) {
 
             int tagLen = theTemplate.bytes.length;
-            int lengthBytesCount = calculateBytesCountForLength(thePos);
+            int lengthBytesCount = theTemplate.isIndefinite() ? 1 : calculateBytesCountForLength(thePos);
 
             // shifts array
             System.arraycopy(theBuffer, theBufferOffset, theBuffer, tagLen + lengthBytesCount, thePos);
@@ -105,9 +105,14 @@ public class BerTlvBuilder {
             // copies tag
             System.arraycopy(theTemplate.bytes, 0, theBuffer, theBufferOffset, theTemplate.bytes.length);
 
-            fillLength(theBuffer, tagLen, thePos);
-
-            thePos += tagLen + lengthBytesCount;
+            if(theTemplate.isIndefinite()){
+                theBuffer[tagLen] = (byte)0x80;
+                //add 2 termination bytes (2 x 0x00)
+                thePos += tagLen + lengthBytesCount + 2;
+            }else{
+                fillLength(theBuffer, tagLen, thePos);
+                thePos += tagLen + lengthBytesCount;
+            }
         }
         return thePos;
     }

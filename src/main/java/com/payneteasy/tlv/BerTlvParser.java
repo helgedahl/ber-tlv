@@ -79,11 +79,14 @@ public class BerTlvParser {
 
         // value
         if(tag.isConstructed()) {
+            if(valueLength == -1){
+                tag.setIndefinite(true);
+            }
 
             ArrayList<BerTlv> list = new ArrayList<BerTlv>();
-            addChildren(aLevel, aBuf, aOffset, levelPadding, tagBytesCount, lengthBytesCount, valueLength, list);
+            int resultOffset = addChildren(aLevel, aBuf, aOffset, levelPadding, tagBytesCount, lengthBytesCount, valueLength, list);
 
-            int resultOffset = aOffset + tagBytesCount + lengthBytesCount + valueLength;
+            //int resultOffset = aOffset + tagBytesCount + lengthBytesCount + valueLength;
             if(log.isDebugEnabled()) {
                 log.debug("{}returning constructed offset = {}", levelPadding, resultOffset);
             }
@@ -113,9 +116,26 @@ public class BerTlvParser {
      * @param valueLength     length
      * @param list            list to add
      */
-    private void addChildren(int aLevel, byte[] aBuf, int aOffset, String levelPadding, int aTagBytesCount, int aDataBytesCount, int valueLength, ArrayList<BerTlv> list) {
+    private int addChildren(int aLevel, byte[] aBuf, int aOffset, String levelPadding, int aTagBytesCount, int aDataBytesCount, int valueLength, ArrayList<BerTlv> list) {
         int startPosition = aOffset + aTagBytesCount + aDataBytesCount;
         int len = valueLength;
+
+        if(len == -1){
+            len = aBuf.length - startPosition;
+            byte byte1 = aBuf[startPosition];
+            byte byte2 = aBuf[startPosition + 1];
+            while( !(byte1 == 0x00 && byte2 == 0x00)){
+                ParseResult result = parseWithResult(aLevel+1, aBuf, startPosition, len);
+                //result.tlv.getTag().setIndefinite(true);
+                list.add(result.tlv);
+                startPosition = result.offset;
+                len = aBuf.length - startPosition;
+                byte1 = aBuf[startPosition];
+                byte2 = aBuf[startPosition + 1];
+            }
+            return startPosition + 2;
+        }
+
         while (startPosition <= aOffset + valueLength) {
             ParseResult result = parseWithResult(aLevel+1, aBuf, startPosition, len);
             list.add(result.tlv);
@@ -127,7 +147,9 @@ public class BerTlvParser {
                 log.debug("{}level {}: adding {} with offset {}, startPosition={}, aDataBytesCount={}, valueLength={}"
                         , levelPadding, aLevel, result.tlv.getTag(), result.offset, startPosition, aDataBytesCount, valueLength);
             }
+
         }
+        return startPosition;
     }
 
     private String createLevelPadding(int aLevel) {
@@ -187,6 +209,12 @@ public class BerTlvParser {
     private int getDataLength(byte[] aBuf, int aOffset) {
 
         int length = aBuf[aOffset] & 0xff;
+
+        //hde Added check for indefinite length indicator
+        if(length == 0x80){
+            return -1;
+        }
+
 
         if((length & 0x80) == 0x80) {
             int numberOfBytes = length & 0x7f;
