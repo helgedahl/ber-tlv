@@ -100,11 +100,10 @@ public class BerTlvBuilderTest {
     @Test
     public void testComplexIndefinite(){
             ArrayList lst = new ArrayList();
-            lst.add(new BerTlv(new BerTag(0x9f, 0x22), "The Text".getBytes()));
-            lst.add(new BerTlv(new BerTag(0x9f, 0x22), "The Text2".getBytes()));
+            lst.add(new BerTlv(new BerTag(0x9f, 0x22).setIndefinite(true), "The Text".getBytes()));
+            lst.add(new BerTlv(new BerTag(0x9f, 0x22).setIndefinite(true), "The Text2".getBytes()));
 
-            BerTag tag = new BerTag(0xBF, 0x20);
-            tag.setIndefinite(true);
+            BerTag tag = new BerTag(0xBF, 0x20).setIndefinite(true);
 
             BerTlvs tlvs = new BerTlvBuilder()
                     .addBerTlv(new BerTlv(tag, lst))

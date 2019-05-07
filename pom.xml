@@ -8,7 +8,7 @@
         <version>4</version>
     </parent>
 
-    <groupId>com.payneteasy</groupId>
+    <groupId>com.helgedahl</groupId>
     <artifactId>ber-tlv</artifactId>
     <version>1.0-10-SNAPSHOT</version>
 

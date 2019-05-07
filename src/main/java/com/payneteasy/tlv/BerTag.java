@@ -40,7 +40,10 @@ public class BerTag {
 
     public boolean isIndefinite() { return indefinite; }
 
-    public void setIndefinite(boolean indefinite){ this.indefinite = indefinite;}
+    public BerTag setIndefinite(boolean indefinite){
+        this.indefinite = indefinite;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -126,7 +126,6 @@ public class BerTlvParser {
             byte byte2 = aBuf[startPosition + 1];
             while( !(byte1 == 0x00 && byte2 == 0x00)){
                 ParseResult result = parseWithResult(aLevel+1, aBuf, startPosition, len);
-                //result.tlv.getTag().setIndefinite(true);
                 list.add(result.tlv);
                 startPosition = result.offset;
                 len = aBuf.length - startPosition;
