@@ -7,6 +7,8 @@ BER-TLV parser and builder
 
 BerTlv is a java library for parsing and building BER TLV encoded data.
 
+This fork adds support for length octet indefinite form.
+
 ## Features
 
 * supported types: amount, date, time, text, BCD, bytes
