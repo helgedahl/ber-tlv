@@ -16,6 +16,7 @@ public class BerTlvBuilderTest {
     public static final BerTag TAG_E0 = new BerTag(0xe0);
     public static final BerTag TAG_86 = new BerTag(0x86);
     public static final BerTag TAG_71 = new BerTag(0x71);
+    private static final BerTlvLoggerSlf4j LOG = new BerTlvLoggerSlf4j();
 
     /**
      * 1 [main] DEBUG c.p.i.t.BerTlvLogger                               -      -50 = 56495341
@@ -92,6 +93,30 @@ public class BerTlvBuilderTest {
         System.out.println(HexUtil.toFormattedHexString(bytes));
 
         BerTlv tlv = new BerTlvParser().parseConstructed(bytes, 0, bytes.length);
+        List<BerTlv> list = tlv.findAll(TAG_86);
+        System.out.println("list = " + list);
+
+    }
+
+    @Test
+    public void testComplex2() {
+        TAG_E0.setIndefinite(true);
+        TAG_71.setIndefinite(true);
+        byte[] bytes = template(TAG_E0)
+                .add(
+                        template(TAG_71)
+                                .addText(TAG_86, "My Text1")
+                                .addText(TAG_86, "My Text2")
+                        //.addHex(TAG_86, "F9128478E28F860D8424000008514C01")
+                        //.addHex(TAG_86, "F9128478E28F860D8424000008514C02")
+                )
+                //.addHex(TAG_86, "F9128478E28F860D8424000008514C03")
+                .addHex(TAG_86, "FFFF")
+                .buildArray();
+        System.out.println(HexUtil.toFormattedHexString(bytes));
+
+        BerTlv tlv = new BerTlvParser().parseConstructed(bytes, 0, bytes.length);
+        BerTlvLogger.log("    ", tlv, LOG);
         List<BerTlv> list = tlv.findAll(TAG_86);
         System.out.println("list = " + list);
 

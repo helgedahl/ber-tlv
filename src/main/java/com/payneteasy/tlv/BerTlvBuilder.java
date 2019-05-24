@@ -13,7 +13,7 @@ public class BerTlvBuilder {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");
     private static final BigDecimal HUNDRED = new BigDecimal(100);
-    private static final int DEFAULT_SIZE = 5 * 1024;
+    private static final int DEFAULT_SIZE = 10 * 1024;
 
     public BerTlvBuilder() {
         this((BerTag)null);
@@ -168,21 +168,24 @@ public class BerTlvBuilder {
     }
 
     public BerTlvBuilder addBytes(BerTag aTag, byte[] aBytes, int aFrom, int aLength) {
-        int tagLength        = aTag.bytes.length;
-        int lengthBytesCount = calculateBytesCountForLength(aLength);
+        try {
+            int tagLength = aTag.bytes.length;
+            int lengthBytesCount = calculateBytesCountForLength(aLength);
 
-        // TAG
-        System.arraycopy(aTag.bytes, 0, theBuffer, thePos, tagLength);
-        thePos+=tagLength;
+            // TAG
+            System.arraycopy(aTag.bytes, 0, theBuffer, thePos, tagLength);
+            thePos += tagLength;
 
-        // LENGTH
-        fillLength(theBuffer, thePos, aLength);
-        thePos += lengthBytesCount;
+            // LENGTH
+            fillLength(theBuffer, thePos, aLength);
+            thePos += lengthBytesCount;
 
-        // VALUE
-        System.arraycopy(aBytes, aFrom, theBuffer, thePos, aLength);
-        thePos+=aLength;
-
+            // VALUE
+            System.arraycopy(aBytes, aFrom, theBuffer, thePos, aLength);
+            thePos += aLength;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return this;
     }
 

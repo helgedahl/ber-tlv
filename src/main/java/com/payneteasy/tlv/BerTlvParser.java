@@ -86,7 +86,6 @@ public class BerTlvParser {
             ArrayList<BerTlv> list = new ArrayList<BerTlv>();
             int resultOffset = addChildren(aLevel, aBuf, aOffset, levelPadding, tagBytesCount, lengthBytesCount, valueLength, list);
 
-            //int resultOffset = aOffset + tagBytesCount + lengthBytesCount + valueLength;
             if(log.isDebugEnabled()) {
                 log.debug("{}returning constructed offset = {}", levelPadding, resultOffset);
             }
